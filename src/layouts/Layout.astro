@@ -1,0 +1,38 @@
+---
+import '../styles/global.css'  
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Dashboard creado con Astro y React" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<slot /> 
+    </body>
+</html>
+
+<style is:global>
+	/* Estilos globales básicos */
+	:root {
+		--accent: 136, 58, 234;
+	}
+	html {
+		font-family: system-ui, sans-serif;
+		background: #f8fafc;
+	}
+	body {
+		margin: 0;
+	}
+</style>

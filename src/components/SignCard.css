@@ -1,0 +1,21 @@
+@reference "../styles/global.css"; 
+
+/* Contenedor principal de la tarjeta */
+.sign-card {
+  @apply bg-white p-3 md:p-4 rounded-2xl border border-slate-100 shadow-sm 
+         flex items-center gap-3 transition-all hover:shadow-md;
+}
+
+/* Caja que contiene el icono */
+.icon-container {
+  @apply p-2.5 rounded-xl flex items-center justify-center;
+}
+
+/* Estilos de los textos */
+.label-text {
+  @apply text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1;
+}
+
+.value-text {
+  @apply text-sm md:text-lg font-bold text-slate-800 leading-none;
+}

@@ -1,0 +1,68 @@
+@reference "../styles/global.css"; 
+
+/* Contenedor del Panel (Drawer) */
+.drawer-container {
+  @apply fixed top-0 left-0 h-full w-[320px] bg-white z-50 shadow-2xl 
+         transition-transform duration-300 ease-out flex flex-col;
+}
+
+.drawer-open { @apply translate-x-0; }
+.drawer-closed { @apply -translate-x-full; }
+
+/* Cabecera del Drawer */
+.drawer-header {
+  @apply p-6 border-b border-slate-100 bg-slate-50/50;
+}
+
+.header-top {
+  @apply flex items-center justify-between mb-6;
+}
+
+.icon-box-sm {
+  @apply w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white;
+}
+
+.drawer-title {
+  @apply font-black text-slate-800 uppercase tracking-widest text-[11px];
+}
+
+.btn-close-drawer {
+  @apply p-2 text-slate-400 bg-white shadow-sm rounded-full border border-slate-100
+         transition-colors hover:text-slate-600;
+}
+
+/* Buscador */
+.search-input {
+  @apply w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl 
+         outline-none text-sm font-medium transition-all
+         focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500;
+}
+
+/* Lista de Pacientes */
+.patient-list-area {
+  @apply flex-1 overflow-y-auto p-4 space-y-2;
+}
+
+.patient-card {
+  @apply w-full flex items-center gap-4 p-3 rounded-2xl transition-all border;
+}
+
+/* Estados de la tarjeta */
+.card-active {
+  @apply bg-indigo-50 border-indigo-100 ring-1 ring-indigo-200;
+}
+
+.card-inactive {
+  @apply bg-white border-transparent hover:bg-slate-50 hover:border-slate-100;
+}
+
+/* Textos dentro de la tarjeta */
+.patient-name-sm { @apply font-bold text-sm truncate; }
+.name-active { @apply text-indigo-900; }
+.name-inactive { @apply text-slate-700; }
+
+.id-badge {
+  @apply text-[9px] font-black uppercase px-2 py-0.5 rounded-md transition-colors;
+}
+.badge-active { @apply bg-indigo-100 text-indigo-600; }
+.badge-inactive { @apply bg-slate-100 text-slate-500; }

@@ -30,19 +30,17 @@ const ClinicalWorkspace = ({ patient }) => (
       </h3>
       
       <div className="space-y-2">
-        {patient.meds.length > 0 ? (
+        {(patient?.meds || []).length > 0 ? (
           patient.meds.map((med, idx) => (
             <div key={idx} className="med-item">
-              <p className="text-xs font-bold text-slate-700">{med.name}</p>
+              <p className="text-xs font-bold text-slate-700">{med?.name}</p>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                {med.dose} • {med.frequency}
+                {med?.dose} • {med?.frequency}
               </p>
             </div>
           ))
         ) : (
-          <p className="empty-state-text py-4 text-center">
-            Sin tratamiento registrado
-          </p>
+          <p className="text-[10px] text-slate-400">Sin medicamentos registrados</p>
         )}
         
         <button className="btn-add-med">

@@ -1,12 +1,9 @@
 @reference "../styles/global.css"; 
 
-
-/* Contenedor Principal del Workspace */
 .workspace-grid {
   @apply grid grid-cols-1 lg:grid-cols-3 gap-6 pb-20 md:pb-0;
 }
 
-/* Tarjeta Base (Estilo común) */
 .card-base {
   @apply bg-white p-5 rounded-3xl border border-slate-100 shadow-sm;
 }

@@ -2,6 +2,12 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { createUser } from '../functions/createUser/resource';
 
 const schema = a.schema({
+  Medication: a.customType({
+    name: a.string().required(),
+    dose: a.string(),
+    frequency: a.string(),
+  }),
+  
   Patient: a.model({
     id: a.id().required(),
     name: a.string().required(),

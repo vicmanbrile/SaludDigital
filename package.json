@@ -9,7 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^9.5.2",
+    "@astrojs/node": "^10.0.0",
     "@astrojs/react": "^4.4.2",
     "@aws-amplify/adapter-nextjs": "^1.7.2",
     "@aws-amplify/ui-react": "^6.15.1",

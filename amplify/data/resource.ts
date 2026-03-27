@@ -7,74 +7,81 @@ const schema = a.schema({
     dose: a.string(),
     frequency: a.string(),
   }),
-  
+
+  UsuarioResponse: a.customType({
+    success: a.boolean(),
+    message: a.string()
+  }),
+
+  StaffProfile: a.model({
+    userId: a.string().required(),
+    role: a.enum(['DOCTOR', 'SECRETARIA']),
+    hospitalId: a.string().required(), 
+    status: a.enum(['PENDING', 'CONFIRMED']),
+  }).authorization((allow) => [
+    allow.ownerDefinedIn('userId').to(['read', 'create']), 
+    allow.group("HOSPITAL").to(['read', 'update']), 
+  ]),
+
   Patient: a.model({
-    id: a.id().required(),
+    patientAccountId: a.string().required(), 
     name: a.string().required(),
     age: a.integer(),
-    clinicalNotes: a.string(), 
-    hospitalId: a.id(),
+    clinicalNotes: a.string(),
     meds: a.ref('Medication').array(),
+    hospitalId: a.string(), 
+    doctorId: a.string(),   
+    doctorStatus: a.enum(['PENDING', 'CONFIRMED']), 
   }).authorization((allow) => [
-    allow.group("DOCTOR").to(['read']),
-    allow.authenticated().to(['create', 'read', 'update', 'delete']),
-    allow.publicApiKey()
-
-    /*
-    // El administrador del Hospital gestiona todo su centro
-    allow.group("HOSPITAL").to(['create', 'read', 'update', 'delete']),
-    // El Doctor lee y edita datos clínicos
-    allow.group("DOCTOR").to(['read', 'update']),
-    // La Secretaria solo registra y ve datos básicos
-    allow.group("SECRETARIA").to(['read', 'create']),
-    // El Paciente solo lee su propia ficha
-    allow.owner(),
-    */
+    allow.ownerDefinedIn('patientAccountId').to(['read', 'create', 'update']),  
+    allow.group('DOCTOR').to(['read', 'update']),
+    allow.group('HOSPITAL').to(['read', 'update']),
   ]),
-  
-  Usuario: a
-  .mutation()
-  .arguments({
-      email: a.string().required(),
-      nombre: a.string().required(),
-      grupo: a.string().required()
-    })
-    .returns(
-      a.customType({
-        success: a.boolean(),
-        message: a.string()
-      })
-    )
-    .handler(a.handler.function(createUser))
-    .authorization(allow => [
-      allow.group('SECRETARIA'),
-      allow.group('HOSPITAL')
-    ])
-    
-  });
 
   Appointment: a.model({
     time: a.string(),
     reason: a.string(),
-    status: a.string(),
-    patientId: a.id(),
+    status: a.enum(['REQUESTED', 'CONFIRMED', 'CANCELLED']),
+    hospitalId: a.string().required(),
+    doctorId: a.string().required(),
+    patientAccountId: a.string().required()
   }).authorization((allow) => [
-    allow.authenticated().to(['create', 'read', 'update', 'delete']),
-    allow.publicApiKey()
+    allow.ownerDefinedIn('patientAccountId').to(['create', 'read']),
+    allow.ownerDefinedIn('doctorId').to(['read', 'update']),
+    allow.group('SECRETARIA').to(['create', 'read', 'update', 'delete']),  
+    allow.group('HOSPITAL').to(['read']),
+    allow.group('DOCTOR').to(['read'])
+  ]),
 
-    /*
-    allow.groups(["DOCTOR", "SECRETARIA", "HOSPITAL"]).to(['read', 'create', 'update']),
-    allow.owner()
-    */
-  ]);
+  Usuario: a
+    .mutation()
+    .arguments({
+      email: a.string().required(),
+      nombre: a.string().required(),
+      grupo: a.string().required(),
+      hospitalId: a.string() 
+    })
+    .returns(a.ref('UsuarioResponse'))
+    .handler(a.handler.function(createUser))
+    .authorization(allow => [
+      allow.group('SECRETARIA'),
+      allow.group('HOSPITAL')
+    ]),
+    Hospital: a.model({
+    nombre: a.string().required(),
+    ubicacion: a.string(),
+    telefono: a.string(),
+    }).authorization((allow) => [
+      allow.owner().to(['read', 'update', 'delete']), 
+      allow.publicApiKey().to(['read']),
+      allow.authenticated().to(['read']),
+    ]),
+});
 
 export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({ 
   schema, 
   authorizationModes: {
     defaultAuthorizationMode : 'userPool',
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
   }
 });

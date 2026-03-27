@@ -5,12 +5,10 @@ import './IconSideBar.css';
 const IconSidebar = ({ agenda, selectedId, onSelect, onOpenSearch }) => (
   <nav className="sidebar-nav">
     
-    {/* Acción Superior */}
     <button onClick={onOpenSearch} className="btn-primary-action">
       <Stethoscope size={22} />
     </button>
 
-    {/* Lista Central */}
     <div className="nav-scroll-area">
       {agenda.map((p) => {
         const isActive = selectedId === p.id;
@@ -22,7 +20,7 @@ const IconSidebar = ({ agenda, selectedId, onSelect, onOpenSearch }) => (
             className="patient-nav-item"
           >
             <div className={`avatar-frame ${isActive ? 'avatar-active' : 'avatar-inactive'}`}>
-              <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+              <img src={p.img || "https:
             </div>
             
             <span className={`time-badge ${isActive ? 'time-active' : 'time-inactive'}`}>
@@ -33,7 +31,6 @@ const IconSidebar = ({ agenda, selectedId, onSelect, onOpenSearch }) => (
       })}
     </div>
     
-    {/* Acción Inferior */}
     <button onClick={onOpenSearch} className="btn-secondary-icon">
       <Search size={20} />
     </button>

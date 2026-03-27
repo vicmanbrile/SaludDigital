@@ -3,7 +3,6 @@ import './SignCard.css';
 
 const SignCard = ({ icon: Icon, label, value, colorClass }) => (
   <div className="sign-card">
-    {/* El color de fondo sigue siendo dinámico via props */}
     <div className={`icon-container ${colorClass}`}>
       <Icon size={16} className="text-white" />
     </div>

@@ -13,10 +13,10 @@
 
 .nav-scroll-area {
   @apply flex-1 flex flex-col gap-4 overflow-y-auto overflow-x-hidden;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none; 
 }
 .nav-scroll-area::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none; 
 }
 
 .patient-nav-item {

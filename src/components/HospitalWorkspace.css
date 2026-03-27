@@ -1,0 +1,4 @@
+.hospital-workspace { padding: 40px; background-color: #f1f5f9; height: 100vh; }
+.calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-top: 20px; }
+.calendar-day { background: white; padding: 15px; border-radius: 8px; min-height: 150px; border: 1px solid #cbd5e1; }
+.appt-badge { background: #e2e8f0; font-size: 12px; padding: 5px; border-radius: 4px; margin-top: 8px; }

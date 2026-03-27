@@ -1,124 +1,112 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Amplify } from 'aws-amplify';
-import { generateClient } from 'aws-amplify/data';
-import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import { Authenticator } from '@aws-amplify/ui-react';
+import { fetchAuthSession } from 'aws-amplify/auth';
+
 import outputs from '../../amplify_outputs.json';
-import { Activity } from 'lucide-react';
 
-
-import SignCard from '../components/SignCard';
-import IconSidebar from '../components/IconSideBar';
-import PatientDrawer from '../components/PatientDrawer';
-import ClinicalWorkspace from '../components/ClinicalWorkspace';
+import '@aws-amplify/ui-react/styles.css';
 import './index.css';
 
-Amplify.configure(outputs);
-const client = generateClient();
+import PatientWorkspace from '../components/PatientWorkspace';
+import DoctorWorkspace from '../components/DoctorWorkspace';
+import SecretaryWorkspace from '../components/SecretaryWorkspace';
+import HospitalWorkspace from '../components/HospitalWorkspace';
 
-const AppContent = ({ user, signOut }) => {
-  const [patients, setPatients] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [showRightDrawer, setShowRightDrawer] = useState(false);
-  const [showLeftDrawer, setShowLeftDrawer] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+
+Amplify.configure(outputs);
+
+export default function App() {
+  return (
+    
+    <Authenticator hideSignUp={true}>
+      {({ signOut, user }) => (
+        <MainRouter signOut={signOut} user={user} />
+      )}
+    </Authenticator>
+  );
+}
+
+function MainRouter({ signOut, user }) {
+  const [userRole, setUserRole] = useState(null);
+  const [loadingRole, setLoadingRole] = useState(true);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-    try {
-      const { data: patients, errors } = await client.models.Patient.list();
-        if (errors) {
-          console.error("Errores de AppSync:", errors);
-            return;
-          }
-          console.log("Pacientes recuperados:", patients);
-          // Aquí actualizas tu estado (useState) con 'patients'
-          setPatients(patients);
+    async function checkUserRole() {
+      try {
+        const session = await fetchAuthSession();
+        const groups = session.tokens?.accessToken?.payload['cognito:groups'];
+        if (groups && groups.length > 0) {
+          setUserRole(groups[0]);
+        } else {
+          setUserRole('PACIENTE'); 
+        }
       } catch (error) {
-            console.error("Error al obtener pacientes:", error);
+        console.error("Error al obtener el rol del usuario:", error);
       } finally {
-        setLoading(false);
+        setLoadingRole(false);
       }
-    };
-    fetchPatients();
+    }
+
+    checkUserRole();
   }, []);
 
-  const activePatient = useMemo(() => {
-    return patients.find(p => p.id === selectedId) || patients[0];
-  }, [selectedId, patients]);
+  
+  if (loadingRole) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <h2>Cargando entorno seguro...</h2>
+      </div>
+    );
+  }
 
-  const filteredPatients = useMemo(() => {
-    return patients.filter(p => p.name?.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [searchTerm, patients]);
-
-  if (loading) return <div className="loading-screen">Cargando expediente...</div>;
+  
+  const renderWorkspace = () => {
+    switch (userRole) {
+      case 'PACIENTE':
+        return <PatientWorkspace />;
+      case 'DOCTOR':
+        return <DoctorWorkspace />;
+      case 'SECRETARIA':
+        return <SecretaryWorkspace />;
+      case 'HOSPITAL':
+        return <HospitalWorkspace />;
+      default:
+        return (
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <h2>Cuenta sin rol asignado</h2>
+            <p>Por favor, contacta a soporte para configurar tu cuenta.</p>
+          </div>
+        );
+    }
+  };
 
   return (
-    <div className="app-viewport">
-      {(showRightDrawer || showLeftDrawer) && (
-        <div className="overlay-backdrop" onClick={() => { setShowRightDrawer(false); setShowLeftDrawer(false); }} />
-      )}
-
-      <PatientDrawer 
-        isOpen={showLeftDrawer} 
-        onClose={() => setShowLeftDrawer(false)}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        patients={filteredPatients}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-      />
-
-      <IconSidebar 
-        agenda={patients} 
-        selectedId={selectedId} 
-        onSelect={setSelectedId} 
-        onOpenSearch={() => setShowLeftDrawer(true)} 
-      />
-
-      <main className="main-content">
-        <header className="patient-header">
-          <div className="header-container">
-            <button onClick={() => setShowRightDrawer(true)} className="patient-profile-trigger">
-              <div className="relative">
-                <img src={activePatient?.img} className="w-12 h-12 rounded-xl object-cover" alt="" />
-                <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${activePatient?.statusColor || 'bg-slate-300'}`} />
-              </div>
-              <div>
-                <h1 className="text-xl font-black">{activePatient?.name || 'Seleccione Paciente'}</h1>
-                <p className="text-slate-400 text-[10px] font-bold uppercase">{activePatient?.age} años • {activePatient?.reason}</p>
-              </div>
-            </button>
-            <button onClick={signOut} className="p-2 bg-slate-100 rounded-lg hover:text-red-500">Salir</button>
-          </div>
-        </header>
-
-        <div className="content-scroll-area">
-          <section>
-            <div className="vitals-grid">
-              <SignCard label="Peso" value={activePatient?.vitals?.weight} colorClass="bg-emerald-500" icon={Activity} />
-              <SignCard label="Presión" value={activePatient?.vitals?.bp} colorClass="bg-rose-500" icon={Activity} />
-            </div>
-          </section>
-          {activePatient ? (
-            <ClinicalWorkspace key={activePatient.id} patient={activePatient} />
-          ) : (
-            <div className="p-10 text-center text-slate-400">No hay datos disponibles</div>
-          )}
+    <div className="app-container">
+      {}
+      <header style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        padding: '10px 20px', 
+        backgroundColor: '#1e293b', 
+        color: 'white' 
+      }}>
+        <div style={{ fontWeight: 'bold' }}>Salud Digital - {userRole}</div>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          <span>Hola, {user?.signInDetails?.loginId || 'Usuario'}</span>
+          <button 
+            onClick={signOut}
+            style={{ padding: '5px 10px', cursor: 'pointer', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px' }}
+          >
+            Cerrar Sesión
+          </button>
         </div>
+      </header>
+
+      {}
+      <main style={{ height: 'calc(100vh - 40px)' }}>
+        {renderWorkspace()}
       </main>
     </div>
   );
-};
-
-
-const App = () => {
-  return (
-    <Authenticator>
-      {(props) => <AppContent {...props} />}
-    </Authenticator>
-  );
-};
-
-export default App;
+}

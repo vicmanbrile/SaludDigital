@@ -1,12 +1,12 @@
 ---
-import FormularioCrearUsuario from '../apps/create_user.jsx';
+import RegisterHospital from '../apps/RegistrarHospital.jsx';
 ---
 
 <html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Crear Usuario - Salud Digital</title>
+    <title>Crear Hospital - Salud Digital</title>
   </head>
   <body class="bg-gray-50 min-h-screen py-12">
     <div class="container mx-auto px-4">
@@ -16,7 +16,7 @@ import FormularioCrearUsuario from '../apps/create_user.jsx';
         <p class="text-gray-600 mt-2">Gestión de accesos y roles</p>
       </div>
 
-      <FormularioCrearUsuario client:load client:only="react" />
+      <RegisterHospital client:load client:only="react" />
       
       <div class="mt-8 text-center">
         <a href="/" class="text-blue-600 hover:underline">&larr; Volver al inicio</a>

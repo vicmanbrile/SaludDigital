@@ -8,7 +8,7 @@ const client = generateClient();
 export default function CreateUser() {
   const [email, setEmail] = useState("");
   const [nombre, setNombre] = useState("");
-  const [grupo, setGrupo] = useState("PATIENT");
+  const [grupo, setGrupo] = useState("PACIENTE");
   const [mensaje, setMensaje] = useState("");
 
   const handleSubmit = async (e) => {
@@ -19,6 +19,8 @@ export default function CreateUser() {
         email,
         nombre,
         grupo,
+      }, {
+        authMode: "apiKey"
       });
 
       if (errors) {
@@ -38,7 +40,7 @@ export default function CreateUser() {
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <input type="text" placeholder="Nombre Completo" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
         <select value={grupo} onChange={(e) => setGrupo(e.target.value)}>
-          <option value="PATIENT">Paciente</option>
+          <option value="PACIENTE">Paciente</option>
           <option value="DOCTOR">Doctor</option>
           <option value="SECRETARIA">Secretaria</option>
         </select>

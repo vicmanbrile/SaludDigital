@@ -1,44 +1,44 @@
+// amplify/functions/createUser/handler.ts
 import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminAddUserToGroupCommand } from "@aws-sdk/client-cognito-identity-provider";
+import type { Schema } from "../../data/resource";
 
 const client = new CognitoIdentityProviderClient();
 
-export const handler = async (event: any) => {
-  
-  const { email, nombre, grupo } = event.arguments;  
-  const userPoolId = process.env.AMPLIFY_AUTH_USERPOOL_ID;
+export const handler: Schema["Usuario"]["functionHandler"] = async (event) => {
+  const { email, nombre, grupo } = event.arguments;
+  const userPoolId = process.env.AUTH_USER_POOL_ID;
 
   try {
-    
-    const userAttributes = [
-      { Name: 'email', Value: email },
-      { Name: 'name', Value: nombre },
-      { Name: 'email_verified', Value: 'true' }
-    ];
-    
-    await client.send(new AdminCreateUserCommand({
+    const createParams = {
       UserPoolId: userPoolId,
       Username: email,
-      UserAttributes: userAttributes,
-      DesiredDeliveryMediums: ['EMAIL']
-    }));
+      UserAttributes: [
+        { Name: "email", Value: email },
+        { Name: "name", Value: nombre },
+        { Name: "email_verified", Value: "true" },
+        { Name: "custom:rol", Value: grupo },
+      ]
+    };
 
-    
-    await client.send(new AdminAddUserToGroupCommand({
+    await client.send(new AdminCreateUserCommand(createParams));
+    const addToGroupParams = {
       UserPoolId: userPoolId,
       Username: email,
-      GroupName: grupo
-    }));
+      GroupName: grupo,
+    };
 
-    return { 
-      success: true, 
-      message: `El usuario ${email} fue creado y asignado al grupo ${grupo} con éxito.` 
+    await client.send(new AdminAddUserToGroupCommand(addToGroupParams));
+
+    return {
+      success: true,
+      message: `Usuario ${email} registrado exitosamente en el grupo ${grupo}.`
     };
 
   } catch (error: any) {
-    console.error("Error en Lambda:", error);
-    return { 
-      success: false, 
-      message: error.message || "Hubo un error desconocido" 
+    console.error("Error creando usuario:", error);
+    return {
+      success: false,
+      message: error.message || "Error interno al crear el usuario."
     };
   }
 };

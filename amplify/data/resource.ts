@@ -72,6 +72,7 @@ const schema = a.schema({
     ubicacion: a.string(),
     telefono: a.string(),
     }).authorization((allow) => [
+      allow.publicApiKey(),
       allow.owner().to(['read', 'update', 'delete']), 
       allow.authenticated().to(['read']),
     ]),
@@ -82,5 +83,8 @@ export const data = defineData({
   schema, 
   authorizationModes: {
     defaultAuthorizationMode : 'userPool',
+    apiKeyAuthorizationMode: {
+      expireesInDays: 30,
+    }
   }
 });

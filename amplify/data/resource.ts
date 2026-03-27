@@ -73,7 +73,6 @@ const schema = a.schema({
     telefono: a.string(),
     }).authorization((allow) => [
       allow.owner().to(['read', 'update', 'delete']), 
-      allow.publicApiKey().to(['read']),
       allow.authenticated().to(['read']),
     ]),
 });

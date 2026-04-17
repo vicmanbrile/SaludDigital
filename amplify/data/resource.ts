@@ -14,7 +14,7 @@ const schema = a.schema({
       secretaries: a.hasMany('Secretary', 'hospitalId'),
     })
     .authorization((allow) => [
-      allow.publicApiKey(), // <--- AQUI
+      allow.publicApiKey(),
       allow.groups(['HOSPITAL']).to(['read', 'update']),
       allow.groups(['DOCTOR', 'SECRETARIA']).to(['read']),
       allow.groups(['PACIENTE']).to(['read']),
@@ -58,7 +58,7 @@ const schema = a.schema({
       hospital: a.belongsTo('Hospital', 'hospitalId'),
     })
     .authorization((allow) => [
-      allow.publicApiKey(), // <--- AQUI
+      allow.publicApiKey(),
       allow.groups(['HOSPITAL']).to(['create', 'read', 'update', 'delete']),
       allow.groups(['SECRETARIA']).to(['read', 'update']),
       allow.groups(['DOCTOR']).to(['read']),
@@ -78,7 +78,7 @@ const schema = a.schema({
       doctorLinks: a.hasMany('PatientDoctor', 'patientId'),
     })
     .authorization((allow) => [
-      allow.publicApiKey(), // <--- AQUI
+      allow.publicApiKey(),
       allow.owner().identityClaim('sub').to(['read', 'update']),
       allow.groups(['DOCTOR']).to(['read']),
       allow.groups(['SECRETARIA']).to(['read']),
@@ -98,7 +98,7 @@ const schema = a.schema({
       doctor: a.belongsTo('Doctor', 'doctorId'),
     })
     .authorization((allow) => [
-      allow.publicApiKey(), // <--- AQUI
+      allow.publicApiKey(), 
       allow.owner().identityClaim('sub').to(['create', 'read', 'delete']), 
       allow.groups(['DOCTOR']).to(['read']),
       allow.groups(['SECRETARIA', 'HOSPITAL']).to(['read']),

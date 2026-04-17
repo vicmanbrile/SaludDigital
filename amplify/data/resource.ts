@@ -14,6 +14,7 @@ const schema = a.schema({
       secretaries: a.hasMany('Secretary', 'hospitalId'),
     })
     .authorization((allow) => [
+      allow.publicApiKey(), // <--- AQUI
       allow.groups(['HOSPITAL']).to(['read', 'update']),
       allow.groups(['DOCTOR', 'SECRETARIA']).to(['read']),
       allow.groups(['PACIENTE']).to(['read']),
@@ -22,7 +23,7 @@ const schema = a.schema({
   Doctor: a
     .model({
       id: a.id().required(),
-      cognitoUserId: a.string().required(),   // sub del usuario en Cognito
+      cognitoUserId: a.string().required(),
       hospitalId: a.id().required(),
       name: a.string().required(),
       email: a.email().required(),
@@ -37,6 +38,7 @@ const schema = a.schema({
       patientLinks: a.hasMany('PatientDoctor', 'doctorId'),
     })
     .authorization((allow) => [
+      allow.publicApiKey(), // <--- AQUI
       allow.groups(['HOSPITAL']).to(['create', 'read', 'update', 'delete']),
       allow.groups(['DOCTOR']).to(['read', 'update']),
       allow.groups(['SECRETARIA']).to(['read']),
@@ -53,14 +55,15 @@ const schema = a.schema({
       phone: a.string(),
       isActive: a.boolean().default(true),
 
-      // Relaciones
       hospital: a.belongsTo('Hospital', 'hospitalId'),
     })
     .authorization((allow) => [
+      allow.publicApiKey(), // <--- AQUI
       allow.groups(['HOSPITAL']).to(['create', 'read', 'update', 'delete']),
       allow.groups(['SECRETARIA']).to(['read', 'update']),
       allow.groups(['DOCTOR']).to(['read']),
     ]),
+
   Patient: a
     .model({
       patientAccountId: a.id().required(),  
@@ -71,12 +74,11 @@ const schema = a.schema({
       bloodType: a.string(),
       allergies: a.string(),
       notes: a.string(),
-
-      // Relaciones
       appointments: a.hasMany('Appointment', 'patientId'),
       doctorLinks: a.hasMany('PatientDoctor', 'patientId'),
     })
     .authorization((allow) => [
+      allow.publicApiKey(), // <--- AQUI
       allow.owner().identityClaim('sub').to(['read', 'update']),
       allow.groups(['DOCTOR']).to(['read']),
       allow.groups(['SECRETARIA']).to(['read']),
@@ -96,7 +98,8 @@ const schema = a.schema({
       doctor: a.belongsTo('Doctor', 'doctorId'),
     })
     .authorization((allow) => [
-      allow.owner().identityClaim('sub').to(['create', 'read', 'delete']),  // paciente gestiona sus doctors
+      allow.publicApiKey(), // <--- AQUI
+      allow.owner().identityClaim('sub').to(['create', 'read', 'delete']), 
       allow.groups(['DOCTOR']).to(['read']),
       allow.groups(['SECRETARIA', 'HOSPITAL']).to(['read']),
     ]),
@@ -128,6 +131,7 @@ const schema = a.schema({
       doctor: a.belongsTo('Doctor', 'doctorId'),
     })
     .authorization((allow) => [
+      allow.publicApiKey(),
       allow.owner().identityClaim('sub').to(['create', 'read', 'update']), 
       allow.groups(['DOCTOR']).to(['read', 'update']),
       allow.groups(['SECRETARIA']).to(['create', 'read', 'update', 'delete']),
@@ -142,7 +146,7 @@ export const data = defineData({
   schema,
   authorizationModes: {
     defaultAuthorizationMode: 'userPool',
-      apiKeyAuthorizationMode: {
+    apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
   },

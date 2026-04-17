@@ -1,90 +1,149 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
-import { createUser } from '../functions/createUser/resource';
 
 const schema = a.schema({
-  Medication: a.customType({
-    name: a.string().required(),
-    dose: a.string(),
-    frequency: a.string(),
-  }),
+  Hospital: a
+    .model({
+      id: a.id().required(),
+      name: a.string().required(),
+      adminEmail: a.email().required(),
+      phone: a.string(),
+      address: a.string(),
+      logoUrl: a.url(),
 
-  UsuarioResponse: a.customType({
-    success: a.boolean(),
-    message: a.string()
-  }),
-
-  StaffProfile: a.model({
-    userId: a.string().required(),
-    role: a.enum(['DOCTOR', 'SECRETARIA']),
-    hospitalId: a.string().required(), 
-    status: a.enum(['PENDING', 'CONFIRMED']),
-  }).authorization((allow) => [
-    allow.ownerDefinedIn('userId').to(['read', 'create']), 
-    allow.group("HOSPITAL").to(['read', 'update']), 
-  ]),
-
-  Patient: a.model({
-    patientAccountId: a.string().required(), 
-    name: a.string().required(),
-    age: a.integer(),
-    clinicalNotes: a.string(),
-    meds: a.ref('Medication').array(),
-    hospitalId: a.string(), 
-    doctorId: a.string(),   
-    doctorStatus: a.enum(['PENDING', 'CONFIRMED']), 
-  }).authorization((allow) => [
-    allow.ownerDefinedIn('patientAccountId').to(['read', 'create', 'update']),  
-    allow.group('DOCTOR').to(['read', 'update']),
-    allow.group('HOSPITAL').to(['read', 'update']),
-  ]),
-
-  Appointment: a.model({
-    time: a.string(),
-    reason: a.string(),
-    status: a.enum(['REQUESTED', 'CONFIRMED', 'CANCELLED']),
-    hospitalId: a.string().required(),
-    doctorId: a.string().required(),
-    patientAccountId: a.string().required()
-  }).authorization((allow) => [
-    allow.ownerDefinedIn('patientAccountId').to(['create', 'read']),
-    allow.ownerDefinedIn('doctorId').to(['read', 'update']),
-    allow.group('SECRETARIA').to(['create', 'read', 'update', 'delete']),  
-    allow.group('HOSPITAL').to(['read']),
-    allow.group('DOCTOR').to(['read'])
-  ]),
-
-  Usuario: a
-    .mutation()
-    .arguments({
-      email: a.string().required(),
-      nombre: a.string().required(),
-      grupo: a.string().required(),
-      hospitalId: a.string() 
+      doctors: a.hasMany('Doctor', 'hospitalId'),
+      secretaries: a.hasMany('Secretary', 'hospitalId'),
     })
-    .returns(a.ref('UsuarioResponse'))
-    .handler(a.handler.function(createUser))
-    .authorization(allow => [
-      allow.group('SECRETARIA'),
-      allow.group('HOSPITAL')
+    .authorization((allow) => [
+      allow.groups(['HOSPITAL']).to(['read', 'update']),
+      allow.groups(['DOCTOR', 'SECRETARIA']).to(['read']),
+      allow.groups(['PACIENTE']).to(['read']),
     ]),
-    Hospital: a.model({
-    nombre: a.string().required(),
-    ubicacion: a.string(),
-    telefono: a.string(),
-    }).authorization((allow) => [
-      allow.publicApiKey(),
-      allow.owner().to(['read', 'update', 'delete']), 
-      allow.authenticated().to(['read']),
+
+  Doctor: a
+    .model({
+      id: a.id().required(),
+      cognitoUserId: a.string().required(),   // sub del usuario en Cognito
+      hospitalId: a.id().required(),
+      name: a.string().required(),
+      email: a.email().required(),
+      specialty: a.string().required(),
+      phone: a.string(),
+      avatarUrl: a.url(),
+      isActive: a.boolean().default(true),
+
+      weeklySchedule: a.json(),
+      hospital: a.belongsTo('Hospital', 'hospitalId'),
+      appointments: a.hasMany('Appointment', 'doctorId'),
+      patientLinks: a.hasMany('PatientDoctor', 'doctorId'),
+    })
+    .authorization((allow) => [
+      allow.groups(['HOSPITAL']).to(['create', 'read', 'update', 'delete']),
+      allow.groups(['DOCTOR']).to(['read', 'update']),
+      allow.groups(['SECRETARIA']).to(['read']),
+      allow.groups(['PACIENTE']).to(['read']),
     ]),
+
+  Secretary: a
+    .model({
+      id: a.id().required(),
+      cognitoUserId: a.string().required(),
+      hospitalId: a.id().required(),
+      name: a.string().required(),
+      email: a.email().required(),
+      phone: a.string(),
+      isActive: a.boolean().default(true),
+
+      // Relaciones
+      hospital: a.belongsTo('Hospital', 'hospitalId'),
+    })
+    .authorization((allow) => [
+      allow.groups(['HOSPITAL']).to(['create', 'read', 'update', 'delete']),
+      allow.groups(['SECRETARIA']).to(['read', 'update']),
+      allow.groups(['DOCTOR']).to(['read']),
+    ]),
+  Patient: a
+    .model({
+      patientAccountId: a.id().required(),  
+      name: a.string().required(),
+      email: a.email(),
+      phone: a.string(),
+      dateOfBirth: a.date(),
+      bloodType: a.string(),
+      allergies: a.string(),
+      notes: a.string(),
+
+      // Relaciones
+      appointments: a.hasMany('Appointment', 'patientId'),
+      doctorLinks: a.hasMany('PatientDoctor', 'patientId'),
+    })
+    .authorization((allow) => [
+      allow.owner().identityClaim('sub').to(['read', 'update']),
+      allow.groups(['DOCTOR']).to(['read']),
+      allow.groups(['SECRETARIA']).to(['read']),
+      allow.groups(['HOSPITAL']).to(['read']),
+    ]),
+
+  PatientDoctor: a
+    .model({
+      id: a.id().required(),
+      patientId: a.id().required(),
+      doctorId: a.id().required(),
+      hospitalId: a.id().required(),
+      assignedAt: a.datetime(),
+      isActive: a.boolean().default(true),
+
+      patient: a.belongsTo('Patient', 'patientId'),
+      doctor: a.belongsTo('Doctor', 'doctorId'),
+    })
+    .authorization((allow) => [
+      allow.owner().identityClaim('sub').to(['create', 'read', 'delete']),  // paciente gestiona sus doctors
+      allow.groups(['DOCTOR']).to(['read']),
+      allow.groups(['SECRETARIA', 'HOSPITAL']).to(['read']),
+    ]),
+
+  Appointment: a
+    .model({
+      id: a.id().required(),
+      patientId: a.id().required(),
+      doctorId: a.id().required(),
+      hospitalId: a.id().required(),
+      scheduledAt: a.datetime().required(),
+      durationMinutes: a.integer().default(30),
+
+      status: a.enum([
+        'PENDING',
+        'CONFIRMED',
+        'IN_PROGRESS',
+        'COMPLETED',
+        'CANCELLED',
+        'NO_SHOW',
+      ]),
+
+      reason: a.string(),
+      doctorNotes: a.string(),      
+      cancellationReason: a.string(),
+
+      createdByRole: a.enum(['PACIENTE', 'SECRETARIA', 'DOCTOR', 'HOSPITAL']),
+      patient: a.belongsTo('Patient', 'patientId'),
+      doctor: a.belongsTo('Doctor', 'doctorId'),
+    })
+    .authorization((allow) => [
+      allow.owner().identityClaim('sub').to(['create', 'read', 'update']), 
+      allow.groups(['DOCTOR']).to(['read', 'update']),
+      allow.groups(['SECRETARIA']).to(['create', 'read', 'update', 'delete']),
+      allow.groups(['HOSPITAL']).to(['read']),
+    ]),
+
 });
 
-export type Schema = ClientSchema<typeof schema>;
-export const data = defineData({ 
-  schema, 
+export type Schema = typeof schema;
+
+export const data = defineData({
+  schema,
   authorizationModes: {
-    defaultAuthorizationMode : 'userPool',
-    apiKeyAuthorizationMode: {
-      expireesInDays: 30,
-    }
-  }
+    defaultAuthorizationMode: 'userPool',
+      apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    },
+  },
 });

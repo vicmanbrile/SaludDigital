@@ -38,7 +38,7 @@ const schema = a.schema({
       patientLinks: a.hasMany('PatientDoctor', 'doctorId'),
     })
     .authorization((allow) => [
-      allow.publicApiKey(), // <--- AQUI
+      allow.publicApiKey(), 
       allow.groups(['HOSPITAL']).to(['create', 'read', 'update', 'delete']),
       allow.groups(['DOCTOR']).to(['read', 'update']),
       allow.groups(['SECRETARIA']).to(['read']),

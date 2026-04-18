@@ -1,4 +1,179 @@
-.hospital-workspace { padding: 40px; background-color: #f1f5f9; height: 100vh; }
-.calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-top: 20px; }
-.calendar-day { background: white; padding: 15px; border-radius: 8px; min-height: 150px; border: 1px solid #cbd5e1; }
-.appt-badge { background: #e2e8f0; font-size: 12px; padding: 5px; border-radius: 4px; margin-top: 8px; }
+
+.hospital-workspace {
+  padding: 40px;
+  background-color: #f8fafc; 
+  min-height: 100vh;
+  color: #0f172a;
+  font-family: system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+
+.hospital-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.hospital-header h1 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.8rem;
+}
+
+.stats-cards {
+  display: flex;
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  min-width: 120px;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card p {
+  margin: 10px 0 0 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #0369a1; 
+}
+
+
+.staff-management {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-controls h3 {
+  margin: 0;
+  color: #334155;
+}
+
+.table-controls select {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.table-controls select:focus {
+  border-color: #0ea5e9;
+}
+
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.staff-table th {
+  background-color: #f1f5f9;
+  padding: 12px 15px;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e2e8f0;
+  text-transform: uppercase;
+}
+
+.staff-table td {
+  padding: 15px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  color: #334155;
+}
+
+.staff-table tr:hover td {
+  background-color: #f8fafc;
+}
+
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.badge.doctor {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge.secretaria {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+
+.approve-btn, .delete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+
+.approve-btn {
+  background-color: #10b981;
+  color: white;
+}
+.approve-btn:hover {
+  background-color: #059669;
+}
+
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+}
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #64748b;
+  background-color: #f8fafc;
+}

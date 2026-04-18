@@ -3,9 +3,9 @@ import App from '../apps/index.jsx'
 import Layout from '../layouts/Layout.astro'
 ---
 
-<Layout title="Salud Digital">
-	<main>
-		<App client:load/>
+<Layout title="Salud Digital - Acceso">
+	<main class="app-background">
+		<App client:only="react"/>
 	</main>
 </Layout>
 
@@ -13,5 +13,12 @@ import Layout from '../layouts/Layout.astro'
 	:global(body) {
 		margin: 0;
 		padding: 0;
+		background-color: #f8fafc;
+	
+	.app-background {
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 </style>

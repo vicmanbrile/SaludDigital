@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Amplify } from 'aws-amplify';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, View, Heading, useTheme, Text } from '@aws-amplify/ui-react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 import outputs from '../../amplify_outputs.json';
@@ -13,13 +13,29 @@ import DoctorWorkspace from '../components/DoctorWorkspace';
 import SecretaryWorkspace from '../components/SecretaryWorkspace';
 import HospitalWorkspace from '../components/HospitalWorkspace';
 
-
 Amplify.configure(outputs);
+
+
+const formComponents = {
+  Header() {
+    const { tokens } = useTheme();
+    return (
+      <View textAlign="center" padding={`${tokens.space.large} ${tokens.space.large} 0 ${tokens.space.large}`}>
+        <Heading level={3} style={{ marginBottom: '10px', color: '#0f172a' }}>
+          SaludDigital
+        </Heading>
+        <Text style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '15px' }}>
+          Inicia sesión para acceder a tu entorno seguro
+        </Text>
+      </View>
+    );
+  },
+};
+
 
 export default function App() {
   return (
-    
-    <Authenticator hideSignUp={true}>
+    <Authenticator hideSignUp={true} components={formComponents}>
       {({ signOut, user }) => (
         <MainRouter signOut={signOut} user={user} />
       )}
@@ -51,16 +67,14 @@ function MainRouter({ signOut, user }) {
     checkUserRole();
   }, []);
 
-  
   if (loadingRole) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <h2>Cargando entorno seguro...</h2>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8fafc' }}>
+        <h2 style={{ color: '#475569' }}>Cargando entorno seguro...</h2>
       </div>
     );
   }
 
-  
   const renderWorkspace = () => {
     switch (userRole) {
       case 'PACIENTE':
@@ -82,29 +96,41 @@ function MainRouter({ signOut, user }) {
   };
 
   return (
-    <div className="app-container">
-      {}
+    <div className="app-container" style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
-        padding: '10px 20px', 
-        backgroundColor: '#1e293b', 
-        color: 'white' 
+        padding: '15px 30px', 
+        backgroundColor: '#0f172a', 
+        color: 'white',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
       }}>
-        <div style={{ fontWeight: 'bold' }}>Salud Digital - {userRole}</div>
+        <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>SaludDigital — Portal {userRole}</div>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <span>Hola, {user?.signInDetails?.loginId || 'Usuario'}</span>
+          <span style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>
+            Sesión iniciada: {user?.signInDetails?.loginId || 'Usuario'}
+          </span>
           <button 
             onClick={signOut}
-            style={{ padding: '5px 10px', cursor: 'pointer', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px' }}
+            style={{ 
+              padding: '6px 12px', 
+              cursor: 'pointer', 
+              background: '#ef4444', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.background = '#dc2626'}
+            onMouseOut={(e) => e.target.style.background = '#ef4444'}
           >
             Cerrar Sesión
           </button>
         </div>
       </header>
 
-      {}
-      <main style={{ height: 'calc(100vh - 40px)' }}>
+      <main style={{ flex: 1, overflow: 'auto', backgroundColor: '#f1f5f9' }}>
         {renderWorkspace()}
       </main>
     </div>
